@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat</title>
+</head>
+<body>
+  <h1>Khách hàng</h1>
+
+  <div id="messages"></div>
+
+  <form id="message-form">
+    <input type="text" id="message-input" placeholder="Nhập tin nhắn...">
+    <button type="submit">Gửi</button>
+  </form>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    // Gửi sự kiện user khi trang được tải
+    socket.emit('user');
+
+    const messageForm = document.getElementById('message-form');
+    const messageInput = document.getElementById('message-input');
+    const messagesDiv = document.getElementById('messages');
+
+    messageForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const message = messageInput.value;
+      if (message) {
+        socket.emit('message', message);
+        messageInput.value = '';
+      }
+    });
+
+    socket.on('message', (data) => {
+      const messageDiv = document.createElement('div');
+      messageDiv.innerText = data;
+      messagesDiv.appendChild(messageDiv);
+    });
+  </script>
+</body>
+</html>
