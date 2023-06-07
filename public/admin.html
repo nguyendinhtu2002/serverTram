@@ -6,12 +6,22 @@
 <body>
   <h1>Admin</h1>
 
-  <div id="messages"></div>
+  <div id="user-list"></div>
 
-  <form id="message-form">
-    <input type="text" id="message-input" placeholder="Nhập tin nhắn...">
-    <button type="submit">Gửi</button>
-  </form>
+  <div id="chat-box">
+    <div id="messages"></div>
+
+    <form id="message-form">
+      <div>
+        <label for="user-select">Chọn người dùng:</label>
+        <select id="user-select" name="user">
+          <option value="" disabled selected>-- Chọn người dùng --</option>
+        </select>
+      </div>
+      <input type="text" id="message-input" placeholder="Nhập tin nhắn...">
+      <button type="submit">Gửi</button>
+    </form>
+  </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
@@ -20,22 +30,47 @@
     // Gửi sự kiện admin khi trang được tải
     socket.emit('admin');
 
+    const userListDiv = document.getElementById('user-list');
+    const userSelect = document.getElementById('user-select');
+    const messagesDiv = document.getElementById('messages');
     const messageForm = document.getElementById('message-form');
     const messageInput = document.getElementById('message-input');
-    const messagesDiv = document.getElementById('messages');
 
     messageForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const message = messageInput.value;
       if (message) {
-        socket.emit('message', message);
-        messageInput.value = '';
+        const userId = userSelect.value;
+        if (userId) {
+          socket.emit('message', { userId, message }); // Gửi cả userId và message
+          messageInput.value = '';
+        } else {
+          alert('Vui lòng chọn một người dùng để gửi tin nhắn');
+        }
+      }
+    });
+
+    socket.on('userConnected', (userId) => {
+      // Thêm người dùng vào danh sách
+      const option = document.createElement('option');
+      option.value = userId;
+      option.text = `User ${userId}`;
+      userSelect.appendChild(option);
+    });
+
+    socket.on('userDisconnected', (userId) => {
+      // Xóa người dùng khỏi danh sách
+      const option = userSelect.querySelector(`option[value="${userId}"]`);
+      if (option) {
+        userSelect.removeChild(option);
       }
     });
 
     socket.on('message', (data) => {
+      const { from, message } = data; // Truy xuất từ dữ liệu nhận được
+      console.log(data)
       const messageDiv = document.createElement('div');
-      messageDiv.innerText = data;
+      messageDiv.innerText = `[${from}]: ${message}`;
       messagesDiv.appendChild(messageDiv);
     });
   </script>
