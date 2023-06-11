@@ -17,6 +17,10 @@ const productSchema = mongoose.Schema({
     require: true,
     unique: true,
   },
+  quantityReal:{
+    type: Number,
+    require: true,
+  },
   status: {
     type: Boolean,
     default: true,

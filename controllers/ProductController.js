@@ -9,6 +9,7 @@ const createProduct = async (req, res) => {
     priceReal: Joi.number().required(),
     priceOld: Joi.number().required(),
     category: Joi.string().required(),
+    quantity:Joi.number().required(),
     categoryId: Joi.string()
       .required()
       .pattern(/^[0-9a-fA-F]{24}$/),

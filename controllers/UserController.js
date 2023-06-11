@@ -58,11 +58,11 @@ const login = async (req, res, next) => {
     const userCheck = await User.findOne({ email });
     if (userCheck && (await userCheck.matchPassword(password))) {
       const access_token = await generateToken({
-        id: userCheck.id,
+        id: userCheck._id,
       });
 
       const refresh_token = await refreshToken({
-        id: userCheck.id,
+        id: userCheck._id,
       });
       return res.json({
         status: "OK",
