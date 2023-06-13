@@ -30,9 +30,7 @@ cron.schedule("0 0 * * *", async () => {
         voucher.expiryDays -= 1;
         await voucher.save();
       }
-      else{
-        return;
-      }
+      
     }
 
     console.log("Voucher expiryDays updated successfully");

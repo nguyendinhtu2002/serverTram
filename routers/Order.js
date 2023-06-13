@@ -4,9 +4,9 @@ const router = express.Router();
 const { protect } = require("../middleware/AuthMiddleware");
 
 
-router.post("/create",createOrder)
-router.get("/",getAllOrders)
-router.put("/update/:id",updateOrders)
-router.get("/details/:id",getDetailsOrders)
-router.delete("/delete/:orderId",deleteOrders)
+router.post("/create",protect,createOrder)
+router.get("/",protect,getAllOrders)
+router.put("/update/:id",protect,updateOrders)
+router.get("/details/:id",protect,getDetailsOrders)
+router.delete("/delete/:orderId",protect,deleteOrders)
 module.exports = router
