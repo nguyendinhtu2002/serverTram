@@ -75,4 +75,18 @@ const deleteProduct = async(req,res)=>{
     res.status(500).json({ error: "Failed to delete order" });
   }
 }
-module.exports = { createProduct, getAll,updateProduct,deleteProduct };
+const getDetails = async(req,res)=>{
+  try {
+    const productId = req.params.id;
+    const productDetails = await Product.findById(productId)
+    if(productDetails){
+      return res.json(productDetails)
+    }
+    else{
+      return res.status(400).json({message:"Khong tim thay san pham!"});
+    }
+  } catch (error) {
+      return res.status(400).json({message:error.message})
+  }
+}
+module.exports = { createProduct, getAll,updateProduct,deleteProduct,getDetails };

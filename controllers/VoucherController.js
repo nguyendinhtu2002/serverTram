@@ -75,4 +75,19 @@ const deleteVoucher = async (req, res) => {
     res.status(500).json({ error: "Failed to delete voucher" });
   }
 };
-module.exports = { createVoucher, getVoucher, updateVoucher, deleteVoucher };
+const getByCode = async(req,res)=>{
+  try {
+    const code = req.body.code
+    console.log(req.body)
+    const checkVoucher = await Voucher.findOne({code:code})
+    if(checkVoucher){
+      return res.json({discount:checkVoucher.discount})
+    }
+    else{
+      return res.status(404).json({message:"Voucher đã hết hạn hoặc không tồn tại!"})
+    }
+  } catch (error) {
+      return res.status(400).json(error)
+  }
+}
+module.exports = { createVoucher, getVoucher, updateVoucher, deleteVoucher,getByCode };
