@@ -45,6 +45,10 @@ const productSchema = mongoose.Schema({
     type: String,
     require: true,
   },
+  rate:{
+    type:Number,
+    default:0,
+  },
   description: { type: String, required: true },
   categoryId: {
     type: mongoose.Schema.Types.ObjectId,

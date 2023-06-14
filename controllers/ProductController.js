@@ -14,6 +14,9 @@ const createProduct = async (req, res) => {
       .required()
       .pattern(/^[0-9a-fA-F]{24}$/),
     status: Joi.boolean(),
+    typeCharm:Joi.array().items(Joi.string()),
+    count:Joi.array().items(Joi.string()),
+    size:Joi.array().items(Joi.number()),
   }).pattern(/.*/, Joi.string());
   const { error } = schema.validate(req.body);
   if (error) {
