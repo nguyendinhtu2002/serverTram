@@ -78,7 +78,6 @@ const deleteVoucher = async (req, res) => {
 const getByCode = async(req,res)=>{
   try {
     const code = req.body.code
-    console.log(req.body)
     const checkVoucher = await Voucher.findOne({code:code})
     if(checkVoucher){
       return res.json({discount:checkVoucher.discount})

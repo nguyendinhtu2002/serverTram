@@ -7,5 +7,5 @@ router.post("/create",protect,admin,createProduct)
 router.get("/",getAll)
 router.put("/update/:id",protect,admin,updateProduct)
 router.delete("/delete/:productId",protect,admin,deleteProduct)
-router.get("/details/:id",getDetails)
+router.get("/detail/:id",getDetails)
 module.exports = router

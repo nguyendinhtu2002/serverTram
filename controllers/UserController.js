@@ -2,6 +2,7 @@ const User = require("../models/UserModel");
 const Joi = require("joi");
 const { generateToken, refreshToken } = require("../utils/generateToken");
 const jwt = require("jsonwebtoken");
+const e = require("express");
 
 const register = async (req, res, next) => {
   const schema = Joi.object({
@@ -159,7 +160,6 @@ const updateAccount = async (req, res, next) => {
         return res.status(400).json({
           status: "OK",
           message: "Mật khẩu cũ sai!",
-          data: updatedUser,
         });
       }
     } else {
@@ -168,7 +168,10 @@ const updateAccount = async (req, res, next) => {
         message: "User not found",
       });
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+    return res.status(400).json(error)
+  }
 };
 const updateAddress = async (req, res, next) => {
   const { id } = req.params;
@@ -205,7 +208,9 @@ const updateAddress = async (req, res, next) => {
         message: "User not found",
       });
     }
-  } catch (error) {}
+  } catch (error) {
+    return res.status(400).json(error)
+  }
 };
 const getUserById = async (req, res, next) => {
   try {
