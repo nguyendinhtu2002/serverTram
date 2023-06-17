@@ -14,9 +14,9 @@ const createProduct = async (req, res) => {
       .required()
       .pattern(/^[0-9a-fA-F]{24}$/),
     status: Joi.boolean(),
-    typeCharm:Joi.array().items(Joi.string()),
-    count:Joi.array().items(Joi.string()),
-    size:Joi.array().items(Joi.number()),
+    typeCharm: Joi.array().items(Joi.string()),
+    count: Joi.array().items(Joi.string()),
+    size: Joi.array().items(Joi.number()),
   }).pattern(/.*/, Joi.string());
   const { error } = schema.validate(req.body);
   if (error) {
@@ -38,21 +38,19 @@ const createProduct = async (req, res) => {
 };
 const getAll = async (req, res) => {
   try {
-    const product = await Product.find({})
-    return res.json(product)
+    const product = await Product.find({});
+    return res.json(product);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
-}
+};
 const updateProduct = async (req, res) => {
   try {
     const data = req.body;
 
-    const updateProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-      data,
-      { new: true }
-    );
+    const updateProduct = await Product.findByIdAndUpdate(req.params.id, data, {
+      new: true,
+    });
 
     if (!updateProduct) {
       return res.status(404).json({ error: "Order not found" });
@@ -62,8 +60,8 @@ const updateProduct = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Failed to update order" });
   }
-}
-const deleteProduct = async(req,res)=>{
+};
+const deleteProduct = async (req, res) => {
   try {
     const productId = req.params.productId;
 
@@ -77,19 +75,63 @@ const deleteProduct = async(req,res)=>{
   } catch (error) {
     res.status(500).json({ error: "Failed to delete order" });
   }
-}
-const getDetails = async(req,res)=>{
+};
+const getDetails = async (req, res) => {
   try {
     const productId = req.params.id;
-    const productDetails = await Product.findById(productId)
-    if(productDetails){
-      return res.json(productDetails)
-    }
-    else{
-      return res.status(400).json({message:"Khong tim thay san pham!"});
+    const productDetails = await Product.findById(productId);
+    if (productDetails) {
+      return res.json(productDetails);
+    } else {
+      return res.status(400).json({ message: "Khong tim thay san pham!" });
     }
   } catch (error) {
-      return res.status(400).json({message:error.message})
+    return res.status(400).json({ message: error.message });
   }
-}
-module.exports = { createProduct, getAll,updateProduct,deleteProduct,getDetails };
+};
+const addReview = async (req, res) => {
+  const { username, rating, comment, images } = req.body;
+
+  try {
+    const product = await Product.findById(req.params.productId);
+
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    const newReview = {
+      username,
+      rating,
+      comment,
+      images,
+    };
+
+    product.reviews.push(newReview);
+    await product.save();
+
+    res.status(201).json({ message: "Review added successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Failed to add review" });
+  }
+};
+const getSlug = async (req, res) => {
+  try {
+    const checkProduct = await Product.find({ slug: req.params.slug });
+    if (checkProduct) {
+      return res.json(checkProduct);
+    }
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: "Co loi gi do" });
+  }
+};
+module.exports = {
+  createProduct,
+  getAll,
+  updateProduct,
+  deleteProduct,
+  getDetails,
+  addReview,
+  getSlug,
+};

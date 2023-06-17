@@ -1,16 +1,23 @@
 const mongoose = require("mongoose");
 
-const reviewSchema = new mongoose.Schema({
-  username: { type: String, required: true },
-  rating: { type: Number, required: true },
-  comment: { type: String, required: true },
-  status: {
-    type: String,
-    enum: ["pending", "approved", "rejected"],
-    default: "pending",
+const reviewSchema = new mongoose.Schema(
+  {
+    username: { type: String, required: true },
+    rating: { type: Number, required: true },
+    comment: { type: String, required: true },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
+    images: {
+      type: [String],
+    },
   },
-  createdAt: { type: Date, default: Date.now },
-});
+  {
+    timestamps: true,
+  }
+);
 const productSchema = mongoose.Schema(
   {
     name: {

@@ -1,5 +1,6 @@
 const Order = require("../models/OrderModel");
 const Product = require("../models/ProductModel");
+const Payment = require("../models/PaymentModel");
 
 const Joi = require("joi");
 
@@ -14,6 +15,7 @@ const createOrder = async (req, res) => {
         })
       )
       .required(),
+    paymentMethod: Joi.string().required(),
     totalPrice: Joi.number().required(),
   });
 
@@ -23,7 +25,7 @@ const createOrder = async (req, res) => {
   }
 
   try {
-    const { customer, products, totalPrice } = value;
+    const { customer, products, totalPrice, paymentMethod } = value;
 
     const productIds = products.map((product) => product.product);
     const quantityOrders = products.map((product) => product.quantityOrder);
@@ -63,8 +65,16 @@ const createOrder = async (req, res) => {
     });
 
     const savedOrder = await order.save();
+    if (savedOrder) {
+      const payment = new Payment({
+        orderId: savedOrder._id,
+        amount: totalPrice,
+        paymentMethod: paymentMethod,
+      });
 
-    res.status(201).json({ order: savedOrder });
+      await payment.save();
+      res.status(201).json({ order: savedOrder });
+    }
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Failed to create order" });
@@ -136,6 +146,8 @@ const deleteOrders = async (req, res) => {
     res.status(500).json({ error: "Failed to delete order" });
   }
 };
+
+
 module.exports = {
   createOrder,
   getAllOrders,
