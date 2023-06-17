@@ -4,11 +4,11 @@ const userSchema = mongoose.Schema(
   {
     firstName: {
       type: String,
-      default: ""
+      default: "",
     },
     lastName: {
       type: String,
-      default: ""
+      default: "",
     },
     email: {
       type: String,
@@ -28,10 +28,10 @@ const userSchema = mongoose.Schema(
         phoneNumber: {
           type: String,
         },
-        addressLine: {
+        address: {
           type: String,
         },
-        village: {
+        ward: {
           type: String,
         },
         district: {
@@ -40,6 +40,7 @@ const userSchema = mongoose.Schema(
         city: {
           type: String,
         },
+        code: [String],
       },
     ],
     wishList: [String],

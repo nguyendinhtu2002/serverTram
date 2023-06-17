@@ -2,6 +2,7 @@ const User = require("../models/UserModel");
 const Joi = require("joi");
 const { generateToken, refreshToken } = require("../utils/generateToken");
 const jwt = require("jsonwebtoken");
+const e = require("express");
 
 const register = async (req, res, next) => {
   const schema = Joi.object({
@@ -131,44 +132,52 @@ const updateAccount = async (req, res, next) => {
       "any.required": "Name is required",
     }),
     lastName: Joi.string().required(),
-    passwordOld: Joi.string(),
-    password: Joi.string(),
+    passwordOld: Joi.string().allow(""),
+    password: Joi.string().allow(""),
   });
 
   const { error, value } = userSchema.validate(updateData);
   if (error) {
     return res.status(400).json({ error: error.details[0].message });
   }
+
   try {
     const user = await User.findOne({ _id: id });
     if (user) {
-      if (
-        updateData.password &&
-        (await user.matchPassword(updateData.passwordOld))
-      ) {
+      if (updateData.password && updateData.passwordOld) {
+        // Password change requested
+        if (await user.matchPassword(updateData.passwordOld)) {
+          user.firstName = updateData.firstName;
+          user.lastName = updateData.lastName;
+          user.password = updateData.password;
+        } else {
+          return res.status(400).json({
+            status: "OK",
+            message: "Mật khẩu cũ sai!",
+          });
+        }
+      } else {
+        // Only name update requested
         user.firstName = updateData.firstName;
         user.lastName = updateData.lastName;
-        user.password = updateData.password;
-        const updatedUser = await user.save();
-        res.json({
-          status: "OK",
-          message: "SUCCESS",
-          data: updatedUser,
-        });
-      } else {
-        return res.status(400).json({
-          status: "OK",
-          message: "Mật khẩu cũ sai!",
-          data: updatedUser,
-        });
       }
+
+      const updatedUser = await user.save();
+      res.json({
+        status: "OK",
+        message: "SUCCESS",
+        data: updatedUser,
+      });
     } else {
       res.status(400).json({
         status: "ERROR",
         message: "User not found",
       });
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json(error);
+  }
 };
 const updateAddress = async (req, res, next) => {
   const { id } = req.params;
@@ -178,10 +187,11 @@ const updateAddress = async (req, res, next) => {
     phoneNumber: Joi.string()
       .pattern(/^[0-9]{10,12}$/)
       .required(),
-    addressLine: Joi.string().required(),
-    village: Joi.string().required(),
+    ward:Joi.string().required(),
+    address: Joi.string().required(),
     district: Joi.string().required(),
     city: Joi.string().required(),
+    code:Joi.array().items(Joi.string()).required(),
   });
   const { error } = addressSchema.validate(updateData);
   if (error) {
@@ -205,7 +215,9 @@ const updateAddress = async (req, res, next) => {
         message: "User not found",
       });
     }
-  } catch (error) {}
+  } catch (error) {
+    return res.status(400).json(error);
+  }
 };
 const getUserById = async (req, res, next) => {
   try {

@@ -11,55 +11,59 @@ const reviewSchema = new mongoose.Schema({
   },
   createdAt: { type: Date, default: Date.now },
 });
-const productSchema = mongoose.Schema({
-  name: {
-    type: String,
-    require: true,
-    unique: true,
+const productSchema = mongoose.Schema(
+  {
+    name: {
+      type: String,
+      require: true,
+      unique: true,
+    },
+    quantityReal: {
+      type: Number,
+      require: true,
+    },
+    status: {
+      type: Boolean,
+      default: true,
+    },
+    priceReal: {
+      type: Number,
+      require: true,
+    },
+    priceOld: {
+      type: Number,
+      require: true,
+    },
+    quantitySold: {
+      type: Number,
+      default: 0,
+    },
+    images: {
+      type: [String],
+      required: true,
+    },
+    category: {
+      type: String,
+      require: true,
+    },
+    rate: {
+      type: Number,
+      default: 0,
+    },
+    description: { type: String, required: true },
+    categoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      require: true,
+      ref: "Category",
+    },
+    reviews: [reviewSchema],
   },
-  quantityReal:{
-    type: Number,
-    require: true,
-  },
-  status: {
-    type: Boolean,
-    default: true,
-  },
-  priceReal: {
-    type: Number,
-    require: true,
-  },
-  priceOld: {
-    type: Number,
-    require: true,
-  },
-  quantitySold: {
-    type: Number,
-    default: 0,
-  },
-  images: {
-    type: [String],
-    required: true,
-  },
-  category: {
-    type: String,
-    require: true,
-  },
-  rate:{
-    type:Number,
-    default:0,
-  },
-  description: { type: String, required: true },
-  categoryId: {
-    type: mongoose.Schema.Types.ObjectId,
-    require: true,
-    ref: "Category",
-  },
-  reviews: [reviewSchema],
-},{ strict: false });
+  { strict: false },
+  {
+    timestamps: true,
+  }
+);
 
-
-const Product = mongoose.model("Product",productSchema)
-
+const Product = mongoose.model("Product", productSchema);
 
 module.exports = Product;

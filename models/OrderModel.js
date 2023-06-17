@@ -8,9 +8,15 @@ const orderSchema = mongoose.Schema({
   },
   products: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Product",
-      required: true,
+      product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+        required: true,
+      },
+      quantityOrder: {
+        type: Number,
+        required: true,
+      },
     },
   ],
   totalPrice: {
@@ -21,7 +27,12 @@ const orderSchema = mongoose.Schema({
     type: String,
     enum: ["pending", "shipped", "delivered"],
     default: "pending",
-  }
+  },
+  address: {
+    type: String,
+  },
+},{
+  timestamps:true,
 });
 
 module.exports = mongoose.model("Order", orderSchema);

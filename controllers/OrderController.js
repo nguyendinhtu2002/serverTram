@@ -5,10 +5,16 @@ const Joi = require("joi");
 
 const createOrder = async (req, res) => {
   const schema = Joi.object({
-    customerId: Joi.string().required(),
-    productIds: Joi.array().items(Joi.string()).required(),
+    customer: Joi.string().required(),
+    products: Joi.array()
+      .items(
+        Joi.object({
+          product: Joi.string().required(),
+          quantityOrder: Joi.number().min(1).required(),
+        })
+      )
+      .required(),
     totalPrice: Joi.number().required(),
-    quantityOrder: Joi.array().items(Joi.number().min(1)).required(),
   });
 
   const { error, value } = schema.validate(req.body);
@@ -17,34 +23,42 @@ const createOrder = async (req, res) => {
   }
 
   try {
-    const { customerId, productIds, totalPrice, quantityOrder } = value;
+    const { customer, products, totalPrice } = value;
 
-    const products = await Product.find({ _id: { $in: productIds } });
+    const productIds = products.map((product) => product.product);
+    const quantityOrders = products.map((product) => product.quantityOrder);
+
+    const foundProducts = await Product.find({ _id: { $in: productIds } });
 
     // Kiểm tra và trừ số lượng sản phẩm
     const insufficientProducts = [];
-    products.forEach((product) => {
-      const requestedIndex = productIds.findIndex((id) => id === product._id.toString());
-      const requestedQuantity = quantityOrder[requestedIndex];
+    foundProducts.forEach((product, index) => {
+      const requestedQuantity = quantityOrders[index];
       if (product.quantity < requestedQuantity) {
         insufficientProducts.push(product.name);
       }
     });
 
     if (insufficientProducts.length > 0) {
-      return res.status(400).json({ error: `Insufficient quantity for products: ${insufficientProducts.join(", ")}` });
+      return res.status(400).json({
+        error: `Insufficient quantity for products: ${insufficientProducts.join(
+          ", "
+        )}`,
+      });
     }
 
-    products.forEach(async (product) => {
-      const requestedIndex = productIds.findIndex((id) => id === product._id.toString());
-      const requestedQuantity = quantityOrder[requestedIndex];
+    foundProducts.forEach(async (product, index) => {
+      const requestedQuantity = quantityOrders[index];
       const updatedQuantity = product.quantity - requestedQuantity;
-      await Product.findOneAndUpdate({ _id: product._id }, { quantity: updatedQuantity });
+      await Product.findOneAndUpdate(
+        { _id: product._id },
+        { quantity: updatedQuantity }
+      );
     });
 
     const order = new Order({
-      customer: customerId,
-      products: productIds,
+      customer: customer,
+      products: products,
       totalPrice: totalPrice,
     });
 
@@ -52,6 +66,7 @@ const createOrder = async (req, res) => {
 
     res.status(201).json({ order: savedOrder });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Failed to create order" });
   }
 };
@@ -72,7 +87,7 @@ const getAllOrders = async (req, res) => {
 };
 const updateOrders = async (req, res) => {
   try {
-    const {status } = req.body;
+    const { status } = req.body;
 
     const updatedOrder = await Order.findByIdAndUpdate(
       req.params.id,
@@ -93,7 +108,9 @@ const getDetailsOrders = async (req, res) => {
   try {
     const orderId = req.params.id;
 
-    const order = await Order.findById(orderId).populate("customer").populate("products");
+    const order = await Order.findById(orderId)
+      .populate("customer")
+      .populate("products");
 
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
@@ -104,7 +121,7 @@ const getDetailsOrders = async (req, res) => {
     res.status(500).json({ error: "Failed to get order details" });
   }
 };
-const deleteOrders = async(req,res)=>{
+const deleteOrders = async (req, res) => {
   try {
     const orderId = req.params.orderId;
 
@@ -118,5 +135,11 @@ const deleteOrders = async(req,res)=>{
   } catch (error) {
     res.status(500).json({ error: "Failed to delete order" });
   }
-}
-module.exports = { createOrder,getAllOrders,updateOrders,getDetailsOrders,deleteOrders };
+};
+module.exports = {
+  createOrder,
+  getAllOrders,
+  updateOrders,
+  getDetailsOrders,
+  deleteOrders,
+};

@@ -11,7 +11,9 @@ const categoriSchema = mongoose.Schema({
     image:{
         type:String,
     }
-})
+},{
+    timestamps:true,
+  })
 
 const category = mongoose.model("Category", categoriSchema);
 

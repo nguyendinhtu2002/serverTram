@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
-const voucherSchema = mongoose.Schema({
+const voucherSchema = mongoose.Schema(
+  {
     code: {
       type: String,
       required: true,
@@ -14,6 +15,10 @@ const voucherSchema = mongoose.Schema({
       type: Number,
       required: true,
     },
-  });
+  },
+  {
+    timestamps: true,
+  }
+);
 
 module.exports = mongoose.model("Voucher", voucherSchema);
