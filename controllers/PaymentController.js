@@ -57,20 +57,19 @@ const updatePayment = async (req, res) => {
     res.status(500).json({ error: "Failed to update payment" });
   }
 };
-
 const deletePayment = async (req, res) => {
-    try {
-      const paymentId = req.params.paymentId;
-  
-      const deletedPayment = await Payment.findByIdAndDelete(paymentId);
-  
-      if (!deletedPayment) {
-        return res.status(404).json({ error: "Payment not found" });
-      }
-  
-      res.json({ message: "Payment deleted successfully" });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to delete payment" });
+  try {
+    const paymentId = req.params.paymentId;
+
+    const deletedPayment = await Payment.findByIdAndDelete(paymentId);
+
+    if (!deletedPayment) {
+      return res.status(404).json({ error: "Payment not found" });
     }
-  };
-module.exports = { createPayment, getAll, updatePayment,deletePayment };
+
+    res.json({ message: "Payment deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete payment" });
+  }
+};
+module.exports = { createPayment, getAll, updatePayment, deletePayment };

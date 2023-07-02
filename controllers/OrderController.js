@@ -3,6 +3,7 @@ const Product = require("../models/ProductModel");
 const Payment = require("../models/PaymentModel");
 
 const Joi = require("joi");
+const User = require("../models/UserModel");
 
 const createOrder = async (req, res) => {
   const schema = Joi.object({
@@ -82,16 +83,43 @@ const createOrder = async (req, res) => {
 };
 const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate("products");
-
-    const ordersWithProducts = orders.map((order) => {
-      return {
-        order,
-      };
+    const orders = await Order.find().populate({
+      path: "products",
+      populate: {
+        path: "product",
+        model: "Product",
+      },
     });
 
-    res.status(200).json({ orders: ordersWithProducts });
+    const ordersWithProductsAndCustomer = await Promise.all(
+      orders.map(async (order) => {
+        const customer = await User.findOne({ _id: order.customer });
+
+        const productsWithDetails = order.products.map((item) => {
+          const product = item.product;
+          return {
+            id: product._id,
+            name: product.name,
+            image: product.images,
+            quantityOrder: item.quantityOrder,
+
+          };
+        });
+
+        return {
+          order: {
+            ...order._doc,
+            products: productsWithDetails,
+            customerAddress: customer ? customer.address[0].address : "",
+            phoneAddress: customer ? customer.address[0].phoneNumber : "",
+          },
+        };
+      })
+    );
+
+    res.status(200).json(ordersWithProductsAndCustomer);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Failed to get orders" });
   }
 };
@@ -146,7 +174,6 @@ const deleteOrders = async (req, res) => {
     res.status(500).json({ error: "Failed to delete order" });
   }
 };
-
 
 module.exports = {
   createOrder,

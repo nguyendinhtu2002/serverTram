@@ -78,6 +78,34 @@ const login = async (req, res, next) => {
     next(error);
   }
 };
+const loginAdmin = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (user && (await user.matchPassword(password))) {
+      if (!user.isAdmin) {
+        return res.status(401).json({ error: "User not Admin" });
+      }
+      const access_token = await generateToken({
+        id: user._id,
+      });
+
+      const refresh_token = await refreshToken({
+        id: user._id,
+      });
+      return res.json({
+        status: "OK",
+        message: "SUCESS",
+        access_token,
+        refresh_token,
+      });
+    } else {
+      return res.status(401).json({ error: "Invalid Usermame or Password" });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
 const refreshTokenService = (token) => {
   return new Promise((resolve, reject) => {
     try {
@@ -134,6 +162,7 @@ const updateAccount = async (req, res, next) => {
     lastName: Joi.string().required(),
     passwordOld: Joi.string().allow(""),
     password: Joi.string().allow(""),
+    isAdmin:Joi.boolean(),
   });
 
   const { error, value } = userSchema.validate(updateData);
@@ -150,6 +179,7 @@ const updateAccount = async (req, res, next) => {
           user.firstName = updateData.firstName;
           user.lastName = updateData.lastName;
           user.password = updateData.password;
+          user.isAdmin = updateData.isAdmin;
         } else {
           return res.status(400).json({
             status: "OK",
@@ -160,6 +190,7 @@ const updateAccount = async (req, res, next) => {
         // Only name update requested
         user.firstName = updateData.firstName;
         user.lastName = updateData.lastName;
+        user.isAdmin = updateData.isAdmin
       }
 
       const updatedUser = await user.save();
@@ -245,6 +276,7 @@ const getUserById = async (req, res, next) => {
     next(error);
   }
 };
+
 module.exports = {
   register,
   login,
@@ -252,4 +284,5 @@ module.exports = {
   updateAccount,
   updateAddress,
   getUserById,
+  loginAdmin
 };

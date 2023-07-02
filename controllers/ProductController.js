@@ -15,7 +15,7 @@ const createProduct = async (req, res) => {
       .pattern(/^[0-9a-fA-F]{24}$/),
     status: Joi.boolean(),
     typeCharm: Joi.array().items(Joi.string()),
-    count: Joi.array().items(Joi.string()),
+    count: Joi.string(),
     size: Joi.array().items(Joi.number()),
   }).pattern(/.*/, Joi.string());
   const { error } = schema.validate(req.body);
@@ -38,8 +38,10 @@ const createProduct = async (req, res) => {
 };
 const getAll = async (req, res) => {
   try {
-    const product = await Product.find({});
-    return res.json(product);
+    const products = await Product.find({})
+    .populate('categoryId', 'type')
+    .select('-categoryId');
+        return res.json(products);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -47,7 +49,9 @@ const getAll = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const data = req.body;
-
+    if (data.quantity == 0) {
+      data.status = false;
+    }
     const updateProduct = await Product.findByIdAndUpdate(req.params.id, data, {
       new: true,
     });
@@ -122,10 +126,38 @@ const getSlug = async (req, res) => {
       return res.json(checkProduct);
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(500).json({ message: "Co loi gi do" });
   }
 };
+const updateStatusReview = async (req, res) => {
+  const { reviewId, status } = req.body;
+
+  try {
+    const product = await Product.findById(req.params.productId);
+
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    const review = product.reviews.find(
+      (review) => review._id.toString() === reviewId
+    );
+
+    if (!review) {
+      return res.status(404).json({ error: "Review not found" });
+    }
+
+    review.status = status;
+    await product.save();
+
+    res.status(200).json({ message: "Review status updated successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Failed to update review status" });
+  }
+};
+
 module.exports = {
   createProduct,
   getAll,
@@ -134,4 +166,5 @@ module.exports = {
   getDetails,
   addReview,
   getSlug,
+  updateStatusReview
 };

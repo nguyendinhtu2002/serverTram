@@ -15,9 +15,11 @@ const Voucher = require("./models/Voucher.js");
 dotenv.config();
 connectDatabase();
 
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:4000'];
+
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: allowedOrigins,
     credentials: true,
   })
 );

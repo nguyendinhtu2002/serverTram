@@ -4,7 +4,6 @@ const messageSchema = mongoose.Schema({
   userId: String,
   from: String,
   message: String,
-  timestamp: { type: Date, default: Date.now },
 },{
   timestamps:true,
 });
