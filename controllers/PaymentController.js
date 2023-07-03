@@ -31,7 +31,7 @@ const createPayment = async (req, res) => {
 };
 const getAll = async (req, res) => {
   try {
-    const data = await Payment.find({});
+    const data = await Payment.find({isDeleted:false});
     return res.json(data);
   } catch (error) {
     return res.json({ message: "Co loi" });
@@ -61,7 +61,11 @@ const deletePayment = async (req, res) => {
   try {
     const paymentId = req.params.paymentId;
 
-    const deletedPayment = await Payment.findByIdAndDelete(paymentId);
+    const deletedPayment = await Payment.findByIdAndUpdate(
+      paymentId,
+      { isDeleted: true },
+      { new: true }
+    );
 
     if (!deletedPayment) {
       return res.status(404).json({ error: "Payment not found" });
@@ -72,4 +76,25 @@ const deletePayment = async (req, res) => {
     res.status(500).json({ error: "Failed to delete payment" });
   }
 };
-module.exports = { createPayment, getAll, updatePayment, deletePayment };
+
+const getDetailPayment = async (req, res) => {
+  try {
+    const payment = await Payment.findById(req.params.id);
+
+    if (payment) {
+      return res.json(payment);
+    } else {
+      return res.status(404).json({ message: "Payment not found" });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+module.exports = {
+  createPayment,
+  getAll,
+  updatePayment,
+  deletePayment,
+  getDetailPayment,
+};

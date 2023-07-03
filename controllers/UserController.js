@@ -162,7 +162,7 @@ const updateAccount = async (req, res, next) => {
     lastName: Joi.string().required(),
     passwordOld: Joi.string().allow(""),
     password: Joi.string().allow(""),
-    isAdmin:Joi.boolean(),
+    isAdmin: Joi.boolean(),
   });
 
   const { error, value } = userSchema.validate(updateData);
@@ -190,7 +190,7 @@ const updateAccount = async (req, res, next) => {
         // Only name update requested
         user.firstName = updateData.firstName;
         user.lastName = updateData.lastName;
-        user.isAdmin = updateData.isAdmin
+        user.isAdmin = updateData.isAdmin;
       }
 
       const updatedUser = await user.save();
@@ -218,11 +218,11 @@ const updateAddress = async (req, res, next) => {
     phoneNumber: Joi.string()
       .pattern(/^[0-9]{10,12}$/)
       .required(),
-    ward:Joi.string().required(),
+    ward: Joi.string().required(),
     address: Joi.string().required(),
     district: Joi.string().required(),
     city: Joi.string().required(),
-    code:Joi.array().items(Joi.string()).required(),
+    code: Joi.array().items(Joi.string()).required(),
   });
   const { error } = addressSchema.validate(updateData);
   if (error) {
@@ -277,6 +277,50 @@ const getUserById = async (req, res, next) => {
   }
 };
 
+const getAll = async (req, res) => {
+  try {
+    const user = await User.find({isDeleted:false});
+
+    return res.json(user);
+    
+  } catch (error) {
+    return res.status(400).json({ message: "co loi" });
+  }
+};
+const updateAdmin = async (req, res) => {
+  try {
+    const userCheck = await User.findById(req.params.id);
+    if (userCheck) {
+      userCheck.isAdmin = req.body.isAdmin;
+      await userCheck.save();
+      res.status(200).json({ message: "Admin user updated successfully" });
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findOneAndUpdate(
+      { _id: req.params.id },
+      { isDeleted: true },
+      { new: true }
+    );
+
+    if (user) {
+      res.status(200).json({ message: "User deleted successfully" });
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -284,5 +328,8 @@ module.exports = {
   updateAccount,
   updateAddress,
   getUserById,
-  loginAdmin
+  loginAdmin,
+  getAll,
+  updateAdmin,
+  deleteUser,
 };

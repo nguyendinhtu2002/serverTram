@@ -22,6 +22,10 @@ const paymentSchema = mongoose.Schema(
       enum: ["pending", "completed", "failed"],
       default: "pending",
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

@@ -41,8 +41,22 @@ const filterUniqueNames = async (req, res) => {
     res.status(500).json({ error: "Failed to filter unique names" });
   }
 };
+const deleteCategories = async (req, res) => {
+  try {
+    const category = await Category.findByIdAndDelete(req.params.id);
+    if (category) {
+      res.status(200).json({ message: "Category deleted successfully" });
+    } else {
+      res.status(404).json({ message: "Category not found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 module.exports = {
   createCategories,
   getAll,
   filterUniqueNames,
+  deleteCategories,
 };
