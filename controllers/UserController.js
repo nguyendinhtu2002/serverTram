@@ -2,7 +2,8 @@ const User = require("../models/UserModel");
 const Joi = require("joi");
 const { generateToken, refreshToken } = require("../utils/generateToken");
 const jwt = require("jsonwebtoken");
-const e = require("express");
+const randomstring = require("randomstring")
+const nodemailer = require("nodemailer")
 
 const register = async (req, res, next) => {
   const schema = Joi.object({
@@ -13,16 +14,11 @@ const register = async (req, res, next) => {
         "string.email": "Email không hợp lệ",
         "any.required": "Email is required",
       }),
-    password: Joi.string()
-      .pattern(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,20}$/
-      )
-      .required()
-      .messages({
-        "string.pattern.base":
-          "Password phải chứa chữ cái,số và 1 kí tự đặc biệt",
-        "any.required": "Password is required",
-      }),
+    password: Joi.string().min(8).required().messages({
+      "string.pattern.base":
+        "Password phải chứa chữ cái,số và 1 kí tự đặc biệt",
+      "any.required": "Password is required",
+    }),
   });
   const { error } = schema.validate(req.body);
   if (error) {
@@ -279,10 +275,9 @@ const getUserById = async (req, res, next) => {
 
 const getAll = async (req, res) => {
   try {
-    const user = await User.find({isDeleted:false});
+    const user = await User.find({ isDeleted: false });
 
     return res.json(user);
-    
   } catch (error) {
     return res.status(400).json({ message: "co loi" });
   }
@@ -320,7 +315,48 @@ const deleteUser = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (user) {
+      const paswordNew = randomstring.generate(10);
+      user.password = paswordNew;
+      const updatedUser = await user.save();
+      var transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: "nguyendinhtu11022002@gmail.com",
+          pass: "dipotwokkbgjlryq",
+        },
+      });
 
+      var mailOptions = {
+        from: "tramhuong.com",
+        to: email,
+        subject: "Password reset",
+        text: `New password: ${paswordNew}
+You must change password at next signin
+              `,
+      };
+
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log("Email sent: " + info.response);
+        }
+      });
+      return res
+        .status(200)
+        .json({ message: "Check your email inbox to get new password." });
+    } else {
+      return res.status(400).json({ message: "User not exists" });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
 module.exports = {
   register,
   login,
@@ -332,4 +368,5 @@ module.exports = {
   getAll,
   updateAdmin,
   deleteUser,
+  forgotPassword,
 };

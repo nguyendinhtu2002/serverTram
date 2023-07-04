@@ -42,8 +42,8 @@ const updateVoucher = async (req, res) => {
   try {
     const voucherId = req.params.id;
 
-    const  updatedData  = req.body;
-    
+    const updatedData = req.body;
+
     const updatedVoucher = await Voucher.findByIdAndUpdate(
       voucherId,
       updatedData,
@@ -75,18 +75,27 @@ const deleteVoucher = async (req, res) => {
     res.status(500).json({ error: "Failed to delete voucher" });
   }
 };
-const getByCode = async(req,res)=>{
+const getByCode = async (req, res) => {
   try {
-    const code = req.body.code
-    const checkVoucher = await Voucher.findOne({code:code})
-    if(checkVoucher){
-      return res.json({discount:checkVoucher.discount})
-    }
-    else{
-      return res.status(404).json({message:"Voucher đã hết hạn hoặc không tồn tại!"})
+    const code = req.body.code;
+    const checkVoucher = await Voucher.findOne({ code: code });
+    if (checkVoucher) {
+      return res.json({ discount: checkVoucher.discount });
+    } else {
+      return res
+        .status(404)
+        .json({ message: "Voucher đã hết hạn hoặc không tồn tại!" });
     }
   } catch (error) {
-      return res.status(400).json(error)
+    return res.status(400).json(error);
   }
-}
-module.exports = { createVoucher, getVoucher, updateVoucher, deleteVoucher,getByCode };
+};
+
+module.exports = {
+  createVoucher,
+  getVoucher,
+  updateVoucher,
+  deleteVoucher,
+  getByCode,
+  
+};
