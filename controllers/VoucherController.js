@@ -91,11 +91,22 @@ const getByCode = async (req, res) => {
   }
 };
 
+const getDetail = async (req, res) => {
+  try {
+    const voucher = await Voucher.findById(req.params.id);
+    if (voucher) {
+      return res.json(voucher);
+    }
+  } catch (error) {
+    return res.status(500).json({ message: "Loi r" });
+  }
+};
+
 module.exports = {
   createVoucher,
   getVoucher,
   updateVoucher,
   deleteVoucher,
   getByCode,
-  
+  getDetail
 };
