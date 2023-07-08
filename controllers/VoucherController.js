@@ -33,7 +33,7 @@ const createVoucher = async (req, res) => {
 const getVoucher = async (req, res) => {
   try {
     const vouchers = await Voucher.find();
-    res.json({ vouchers });
+    res.json( vouchers );
   } catch (error) {
     res.status(500).json({ error: "Failed to get vouchers" });
   }
