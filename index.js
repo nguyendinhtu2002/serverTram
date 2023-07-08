@@ -19,7 +19,7 @@ const allowedOrigins = ['http://localhost:3000', 'http://localhost:4000'];
 
 app.use(
   cors({
-    origin: "*",
+    origin: "https://tramdinh.vn",
     credentials: true,
   })
 );
