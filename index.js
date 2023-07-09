@@ -15,11 +15,11 @@ const Voucher = require("./models/Voucher.js");
 dotenv.config();
 connectDatabase();
 
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:4000'];
+const allowedOrigins = ['https://tramdinh.vn', 'https://admin.tramdinh.vn'];
 
 app.use(
   cors({
-    origin: "https://tramdinh.vn",
+    origin:allowedOrigins,
     credentials: true,
   })
 );
