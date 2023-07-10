@@ -19,7 +19,7 @@ const allowedOrigins = ['https://tramdinh.vn', 'https://admin.tramdinh.vn'];
 
 app.use(
   cors({
-    origin:allowedOrigins,
+    origin: allowedOrigins,
     credentials: true,
   })
 );
@@ -32,7 +32,7 @@ cron.schedule("0 0 * * *", async () => {
         voucher.expiryDays -= 1;
         await voucher.save();
       }
-      
+
     }
 
     console.log("Voucher expiryDays updated successfully");
