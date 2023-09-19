@@ -15,7 +15,7 @@ const Voucher = require("./models/Voucher.js");
 dotenv.config();
 connectDatabase();
 
-const allowedOrigins = ['https://tramdinh.vn', 'https://admin.tramdinh.vn'];
+const allowedOrigins = ['https://tramdinh.vn', 'https://admin.tramdinh.vn','http://localhost:3000','http://localhost:4000'];
 
 app.use(
   cors({
